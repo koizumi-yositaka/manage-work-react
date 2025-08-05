@@ -1,6 +1,6 @@
 // src/auth.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { loginApi, type User } from "./utils/login";
+import { loginApi, verifyTokenApi, type User } from "./utils/login";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -24,13 +24,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem("auth-token");
     if (token) {
       // Validate token with your API
-      fetch("/api/validate-token", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => response.json())
+      verifyTokenApi(token)
         .then((userData) => {
-          if (userData.valid) {
-            setUser(userData.user);
+          if (userData) {
+            console.log("userData", userData);
+            setUser(userData);
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem("auth-token");

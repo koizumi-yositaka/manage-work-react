@@ -4,9 +4,11 @@ import type { RedirectParams } from "../types/nav";
 import type { AuthState } from "@/auth";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search): RedirectParams => ({
-    redirect: (search.redirect as string) || "/",
-  }),
+  validateSearch: (search): RedirectParams => {
+    const redirect =
+      typeof search.redirect === "string" ? search.redirect : undefined;
+    return redirect ? { redirect } : {};
+  },
   beforeLoad: ({
     context,
     search,
@@ -17,7 +19,7 @@ export const Route = createFileRoute("/login")({
     // Redirect if already authenticated
     if (context.auth.isAuthenticated) {
       throw redirect({
-        to: search.redirect,
+        to: search.redirect ?? "/dashboard",
       });
     }
   },
@@ -42,7 +44,7 @@ function LoginComponent() {
       await auth.login(username, password);
       // Navigate to the redirect URL using router navigation
       navigate({
-        to: redirect,
+        to: redirect ?? "/dashboard",
       });
       //navigate({ to: "/" });
     } catch {

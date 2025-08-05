@@ -12,7 +12,7 @@ function InnerApp() {
 function App() {
   return (
     <AuthProvider>
-      {import.meta.env.DEV && "これは開発環境です"}
+      {/* {import.meta.env.DEV && "これは開発環境です"} */}
       <InnerApp />
     </AuthProvider>
   );

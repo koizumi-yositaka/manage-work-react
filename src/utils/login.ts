@@ -32,3 +32,13 @@ export const loginApi = async (
   }
   throw new Error(`Unknown environment: ${env}`);
 };
+
+export const verifyTokenApi = async (token: string): Promise<User> => {
+  if (env === "development") {
+    const res = await axios.post("http://localhost:9100/verify", { token }, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data.user;
+  }
+  throw new Error(`Unknown environment: ${env}`);
+};
