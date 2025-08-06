@@ -1,16 +1,35 @@
-import axios from "axios";
+import Axios from "axios";
+const axiosInstance = Axios.create({ 
+    baseURL: import.meta.env.VITE_BE_ENDPOINT,  
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 60000,
+});
 
-const isProd = process.env.NODE_ENV === "production";
-const BASE_URL = isProd
-  ? "https://example.com/api/aurora"
-  : "http://localhost:9001";
+// リクエスト時の共通処理
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log(`[Request] ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('[Request Error]', error);
+    return Promise.reject(error);
+  }
+);
 
-export const postAuroraApi = async <TReq, TRes>(
-  path: string,
-  data: TReq
-): Promise<TRes> => {
-  const response = await axios.post<TRes>(`${BASE_URL}${path}`, data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-};
+// レスポンス時の共通処理
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log(`[Response] ${response.status} ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error('[Response Error]', error.response ? error.response.data : error);
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;

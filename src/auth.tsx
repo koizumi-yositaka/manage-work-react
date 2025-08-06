@@ -1,7 +1,8 @@
 // src/auth.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { loginApi, verifyTokenApi, type User } from "./utils/login";
-
+import { getUserInfo, mwlogin } from "./api/authApi";
+import { type User } from "./types/user";
+import { userAttributesToUserInfo } from "./utils/util";
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
@@ -24,11 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem("auth-token");
     if (token) {
       // Validate token with your API
-      verifyTokenApi(token)
+      getUserInfo(token)
         .then((userData) => {
           if (userData) {
             console.log("userData", userData);
-            setUser(userData);
+            setUser(userAttributesToUserInfo(userData));
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem("auth-token");
@@ -75,13 +76,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     // Replace with your authentication logic
-    const response = await loginApi({ username, password });
-
-    if (response) {
-      setUser(response.user);
+    const response = await mwlogin({ username, password });
+    const userInfo = await getUserInfo(response.accessToken);
+    if (userInfo) {
+      setUser(userAttributesToUserInfo(userInfo));
       setIsAuthenticated(true);
       // Store token for persistence
-      localStorage.setItem("auth-token", response.token);
+      localStorage.setItem("auth-token", response.accessToken);
     } else {
       throw new Error("Authentication failed");
     }
