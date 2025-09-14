@@ -1,0 +1,50 @@
+import axiosInstance from "@/utils/apiQuizClient";
+import type { TPageDesign } from "@/types/quizType";
+import type { AxiosResponse } from "axios";
+
+type QuizResponse = {
+    fileKey: string;
+}
+
+type QuizSituationList = {
+    result: QuizSituation[];
+}
+
+type QuizSituation = {
+    quizId: string;
+    quizName: string;
+    authorId: string;
+    quizCreatedAt: string;
+    quizResponseSituations: QuizResponseSituation[];
+}
+
+type QuizResponseSituation = {
+    respondentEmail: string;
+    version: number;
+    score: number;
+    responseCreatedAt: string;
+}
+
+
+export const quizApi = {
+    createQuiz: async (userId: string, quizName: string, pageDesign: TPageDesign[]) => {
+        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/createQuiz`, { userId, quizName, pageDesign });
+        return response.data;
+    },
+    getSituation: async (accessToken: string) => {
+        const response: AxiosResponse<QuizSituationList> = await axiosInstance.get(`/getSituation`,{
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    },
+    distributeQuiz: async (accessToken: string, quizId: string, emailList: string[]) => {
+        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/distributeQuiz`, { quizId, targets: emailList }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    }
+};

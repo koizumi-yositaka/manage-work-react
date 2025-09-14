@@ -131,7 +131,7 @@ export const useQuizManagement = (initialData: TPageDesign[]): UseQuizManagement
                 { label: "選択肢1", value: "option1" },
                 { label: "選択肢2", value: "option2" },
               ],
-              requiredMessage: "",
+              requiredMessage: "選択してください",
             },
           },
         ],
