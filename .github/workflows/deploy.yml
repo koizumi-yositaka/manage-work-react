@@ -1,0 +1,55 @@
+name: Deploy React to S3
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Select environment
+        id: select-env
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "STAGE=prod" >> $GITHUB_ENV
+            echo "S3_BUCKET=distribute-bucket-ky-cloudfront-bucket-manage-work-react-prod" >> $GITHUB_ENV
+          else
+            echo "STAGE=dev" >> $GITHUB_ENV
+            echo "S3_BUCKET=distribute-bucket-ky-cloudfront-bucket-manage-work-react-dev" >> $GITHUB_ENV
+          fi
+
+      - name: Build React app
+        run: |
+          if [[ "$STAGE" == "prod" ]]; then
+            cp .env.production .env
+          else
+            cp .env.development .env
+          fi
+          npm run build
+
+      - name: Configure AWS credentials (assume role)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        run: aws s3 sync dist/ s3://$S3_BUCKET --delete

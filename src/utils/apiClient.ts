@@ -1,7 +1,6 @@
 import Axios from "axios";
 const axiosInstance = Axios.create({ 
-    baseURL: import.meta.env.VITE_BE_ENDPOINT,  
-    withCredentials: true,
+    baseURL: import.meta.env.VITE_AUTH_ENDPOINT,  
     headers: {
         'Content-Type': 'application/json',
     },

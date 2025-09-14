@@ -15,6 +15,22 @@ export const MwSidebarContent = () => {
       title: "Dashboard",
       url: "/dashboard",
     },
+    {
+      title: "Users",
+      url: "/manage",
+    },
+    {
+      title: "Admin",
+      url: "/admin",
+    },
+    {
+      title: "Moderator",
+      url: "/moderator",
+    },
+    {
+      title: "Quiz",
+      url: "/quiz",
+    },
   ];
   return (
     <SidebarContent>

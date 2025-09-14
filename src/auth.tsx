@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .then((userData) => {
           if (userData) {
             console.log("userData", userData);
-            setUser(userAttributesToUserInfo(userData));
+            setUser(userAttributesToUserInfo(userData.user));
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem("auth-token");
@@ -77,9 +77,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string) => {
     // Replace with your authentication logic
     const response = await mwlogin({ username, password });
-    const userInfo = await getUserInfo(response.accessToken);
+    const userInfo = await getUserInfo(response.idToken);
     if (userInfo) {
-      setUser(userAttributesToUserInfo(userInfo));
+      setUser(userAttributesToUserInfo(userInfo.user));
       setIsAuthenticated(true);
       // Store token for persistence
       localStorage.setItem("auth-token", response.accessToken);
