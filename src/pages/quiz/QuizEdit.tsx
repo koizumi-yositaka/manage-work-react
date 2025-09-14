@@ -12,6 +12,10 @@ interface QuizEditProps {
   pageId: string;
   onUpdateQuiz: (pageId: string, componentId: string, updatedQuiz: TInputComponentDesign) => void;
   onDeleteQuiz: (pageId: string, componentId: string) => void;
+  onMoveQuizUp: (pageId: string, componentId: string) => void;
+  onMoveQuizDown: (pageId: string, componentId: string) => void;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
 const ANSWER_TYPE_OPTIONS: { value: EnumInputComponentType; label: string }[] = [
@@ -22,7 +26,7 @@ const ANSWER_TYPE_OPTIONS: { value: EnumInputComponentType; label: string }[] = 
   // { value: "select", label: "セレクトボックス" },
 ];
 
-export const QuizEdit = ({ quiz, pageId, onUpdateQuiz, onDeleteQuiz }: QuizEditProps) => {
+export const QuizEdit = ({ quiz, pageId, onUpdateQuiz, onDeleteQuiz, onMoveQuizUp, onMoveQuizDown, isFirst, isLast }: QuizEditProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedQuiz, setEditedQuiz] = useState(quiz);
   const [isOpen, setIsOpen] = useState(false);
@@ -79,9 +83,6 @@ export const QuizEdit = ({ quiz, pageId, onUpdateQuiz, onDeleteQuiz }: QuizEditP
                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
                   {getAnswerTypeLabel(isEditing ? editedQuiz.type : quiz.type)}
                 </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm">
-                  ID: {quiz.id}
-                </span>
                 <span className="text-sm text-gray-500">
                   正解: {isEditing ? editedQuiz.answer : quiz.answer}
                 </span>
@@ -90,6 +91,36 @@ export const QuizEdit = ({ quiz, pageId, onUpdateQuiz, onDeleteQuiz }: QuizEditP
             <div className="flex items-center space-x-2 ml-4">
               {isOpen && (
                 <>
+                  {/* 並び替えボタン */}
+                  <div className="flex flex-col space-y-1">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMoveQuizUp(pageId, quiz.id);
+                      }}
+                      size="sm"
+                      variant="outline"
+                      disabled={isFirst}
+                      className="h-6 w-6 p-0"
+                      title="上に移動"
+                    >
+                      ↑
+                    </Button>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMoveQuizDown(pageId, quiz.id);
+                      }}
+                      size="sm"
+                      variant="outline"
+                      disabled={isLast}
+                      className="h-6 w-6 p-0"
+                      title="下に移動"
+                    >
+                      ↓
+                    </Button>
+                  </div>
+                  
                   {isEditing ? (
                     <>
                       <Button 
@@ -210,9 +241,9 @@ export const QuizEdit = ({ quiz, pageId, onUpdateQuiz, onDeleteQuiz }: QuizEditP
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-full">
-                            {editedQuiz.content.options.map((option) => (
+                            {editedQuiz.content.options.map((option,index) => (
                               <DropdownMenuItem
-                                key={option.id}
+                                key={`${option.value}-${index}`}
                                 onClick={() => handleAnswerChange(option.value)}
                                 className={editedQuiz.answer === option.value ? "bg-yellow-100" : ""}
                               >

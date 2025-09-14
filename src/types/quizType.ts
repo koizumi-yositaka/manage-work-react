@@ -16,7 +16,6 @@ export type TInputContentDesign = {
     requiredMessage: string;
 };
 export type TRadioOption = {
-    id: string;
     label: string;
     value: string;
 };
