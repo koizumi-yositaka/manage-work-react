@@ -2,7 +2,7 @@ import type { TPageDesign } from "@/types/quizType";
 import QuizPresentation from "./QuizPresentation";
 import { useQuizManagement } from "@/hooks/useQuizManagement";
 
-export const QuizContainer = () => {
+export const QuizCreator = () => {
   const initialData: TPageDesign[] = [
     {
       pageId: "basic_info",
@@ -116,19 +116,26 @@ export const QuizContainer = () => {
   } = useQuizManagement(initialData);
 
   return (
-    <QuizPresentation 
-      pageDesigns={pageDesigns}
-      onUpdateQuiz={updateQuiz}
-      onAddQuiz={addQuiz}
-      onDeleteQuiz={deleteQuiz}
-      onAddPage={addPage}
-      onDeletePage={deletePage}
-      onUpdatePageId={updatePageId}
-      onResetToMinimal={resetToMinimal}
-      onResetToTemplate={resetToTemplate}
-      onMoveQuizUp={moveQuizUp}
-      onMoveQuizDown={moveQuizDown}
-      onValidate={validateData}
-    />
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">クイズ作成</h1>
+        <p className="text-gray-600 mt-2">新しいクイズを作成・編集</p>
+      </div>
+      
+      <QuizPresentation 
+        pageDesigns={pageDesigns}
+        onUpdateQuiz={updateQuiz}
+        onAddQuiz={addQuiz}
+        onDeleteQuiz={deleteQuiz}
+        onAddPage={addPage}
+        onDeletePage={deletePage}
+        onUpdatePageId={updatePageId}
+        onResetToMinimal={resetToMinimal}
+        onResetToTemplate={resetToTemplate}
+        onMoveQuizUp={moveQuizUp}
+        onMoveQuizDown={moveQuizDown}
+        onValidate={validateData}
+      />
+    </div>
   );
 };

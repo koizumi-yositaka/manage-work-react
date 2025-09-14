@@ -12,7 +12,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
+    env:
+      CLOUDFRONT_DISTRIBUTION_ID_DEV: E30B9NCEMV5G30
+      CLOUDFRONT_DISTRIBUTION_ID_PROD: E30B9NCEMV5G30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -31,9 +33,11 @@ jobs:
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "STAGE=prod" >> $GITHUB_ENV
             echo "S3_BUCKET=distribute-bucket-ky-cloudfront-bucket-manage-work-react-prod" >> $GITHUB_ENV
+            echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID_PROD" >> $GITHUB_ENV
           else
             echo "STAGE=dev" >> $GITHUB_ENV
             echo "S3_BUCKET=distribute-bucket-ky-cloudfront-bucket-manage-work-react-dev" >> $GITHUB_ENV
+            echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID_DEV" >> $GITHUB_ENV
           fi
 
       - name: Build React app
@@ -53,3 +57,14 @@ jobs:
 
       - name: Deploy to S3
         run: aws s3 sync dist/ s3://$S3_BUCKET --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          if [[ -n "$CLOUDFRONT_DISTRIBUTION_ID" ]]; then
+            echo "Creating CloudFront invalidation for distribution: $CLOUDFRONT_DISTRIBUTION_ID"
+            aws cloudfront create-invalidation \
+              --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+              --paths "/*"
+          else
+            echo "CloudFront Distribution ID not set, skipping cache invalidation"
+          fi

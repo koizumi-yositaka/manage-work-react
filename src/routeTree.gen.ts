@@ -19,7 +19,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/_users'
 import { Route as AuthenticatedModeratorRouteImport } from './routes/_authenticated/_moderator'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/_admin'
-import { Route as AuthenticatedQuizRouteRouteImport } from './routes/_authenticated/quiz/route'
+import { Route as AuthenticatedQuizIndexRouteImport } from './routes/_authenticated/quiz/index'
+import { Route as AuthenticatedQuizCreateRouteImport } from './routes/_authenticated/quiz/create'
 import { Route as AuthenticatedUsersManageRouteImport } from './routes/_authenticated/_users/manage'
 import { Route as AuthenticatedModeratorModeratorRouteImport } from './routes/_authenticated/_moderator/moderator'
 import { Route as AuthenticatedAdminAdminRouteImport } from './routes/_authenticated/_admin/admin'
@@ -67,9 +68,14 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedQuizRouteRoute = AuthenticatedQuizRouteRouteImport.update({
-  id: '/quiz',
-  path: '/quiz',
+const AuthenticatedQuizIndexRoute = AuthenticatedQuizIndexRouteImport.update({
+  id: '/quiz/',
+  path: '/quiz/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedQuizCreateRoute = AuthenticatedQuizCreateRouteImport.update({
+  id: '/quiz/create',
+  path: '/quiz/create',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedUsersManageRoute =
@@ -95,22 +101,24 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/about': typeof AboutLazyRoute
-  '/quiz': typeof AuthenticatedQuizRouteRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/moderator': typeof AuthenticatedModeratorModeratorRoute
   '/manage': typeof AuthenticatedUsersManageRoute
+  '/quiz/create': typeof AuthenticatedQuizCreateRoute
+  '/quiz': typeof AuthenticatedQuizIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/about': typeof AboutLazyRoute
-  '/quiz': typeof AuthenticatedQuizRouteRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin': typeof AuthenticatedAdminAdminRoute
   '/moderator': typeof AuthenticatedModeratorModeratorRoute
   '/manage': typeof AuthenticatedUsersManageRoute
+  '/quiz/create': typeof AuthenticatedQuizCreateRoute
+  '/quiz': typeof AuthenticatedQuizIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,7 +127,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/about': typeof AboutLazyRoute
-  '/_authenticated/quiz': typeof AuthenticatedQuizRouteRoute
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/_moderator': typeof AuthenticatedModeratorRouteWithChildren
   '/_authenticated/_users': typeof AuthenticatedUsersRouteWithChildren
@@ -127,6 +134,8 @@ export interface FileRoutesById {
   '/_authenticated/_admin/admin': typeof AuthenticatedAdminAdminRoute
   '/_authenticated/_moderator/moderator': typeof AuthenticatedModeratorModeratorRoute
   '/_authenticated/_users/manage': typeof AuthenticatedUsersManageRoute
+  '/_authenticated/quiz/create': typeof AuthenticatedQuizCreateRoute
+  '/_authenticated/quiz/': typeof AuthenticatedQuizIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,22 +144,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/unauthorized'
     | '/about'
-    | '/quiz'
     | '/dashboard'
     | '/admin'
     | '/moderator'
     | '/manage'
+    | '/quiz/create'
+    | '/quiz'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/unauthorized'
     | '/about'
-    | '/quiz'
     | '/dashboard'
     | '/admin'
     | '/moderator'
     | '/manage'
+    | '/quiz/create'
+    | '/quiz'
   id:
     | '__root__'
     | '/'
@@ -158,7 +169,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/unauthorized'
     | '/about'
-    | '/_authenticated/quiz'
     | '/_authenticated/_admin'
     | '/_authenticated/_moderator'
     | '/_authenticated/_users'
@@ -166,6 +176,8 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/admin'
     | '/_authenticated/_moderator/moderator'
     | '/_authenticated/_users/manage'
+    | '/_authenticated/quiz/create'
+    | '/_authenticated/quiz/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -241,11 +253,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/quiz': {
-      id: '/_authenticated/quiz'
+    '/_authenticated/quiz/': {
+      id: '/_authenticated/quiz/'
       path: '/quiz'
       fullPath: '/quiz'
-      preLoaderRoute: typeof AuthenticatedQuizRouteRouteImport
+      preLoaderRoute: typeof AuthenticatedQuizIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/quiz/create': {
+      id: '/_authenticated/quiz/create'
+      path: '/quiz/create'
+      fullPath: '/quiz/create'
+      preLoaderRoute: typeof AuthenticatedQuizCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/_users/manage': {
@@ -309,19 +328,21 @@ const AuthenticatedUsersRouteWithChildren =
   AuthenticatedUsersRoute._addFileChildren(AuthenticatedUsersRouteChildren)
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedQuizRouteRoute: typeof AuthenticatedQuizRouteRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedModeratorRoute: typeof AuthenticatedModeratorRouteWithChildren
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedQuizCreateRoute: typeof AuthenticatedQuizCreateRoute
+  AuthenticatedQuizIndexRoute: typeof AuthenticatedQuizIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedQuizRouteRoute: AuthenticatedQuizRouteRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedModeratorRoute: AuthenticatedModeratorRouteWithChildren,
   AuthenticatedUsersRoute: AuthenticatedUsersRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedQuizCreateRoute: AuthenticatedQuizCreateRoute,
+  AuthenticatedQuizIndexRoute: AuthenticatedQuizIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
