@@ -25,10 +25,23 @@ type QuizResponseSituation = {
     responseCreatedAt: string;
 }
 
+type UploadQuizSourceResponse = {
+    message: string;
+    key: string;
+}
+
 
 export const quizApi = {
     createQuiz: async (userId: string, quizName: string, pageDesign: TPageDesign[]) => {
         const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/createQuiz`, { userId, quizName, pageDesign });
+        return response.data;
+    },
+    uploadQuizSource: async (file: File | Blob) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response: AxiosResponse<UploadQuizSourceResponse> = await axiosInstance.post(`/uploadQuizSrc`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
         return response.data;
     },
     getSituation: async (accessToken: string) => {

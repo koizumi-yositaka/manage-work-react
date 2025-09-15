@@ -110,6 +110,7 @@ export const QuizContainer = () => {
     updatePageId,
     resetToMinimal,
     resetToTemplate,
+    resetToEmpty,
     moveQuizUp,
     moveQuizDown,
     validateData
@@ -117,6 +118,7 @@ export const QuizContainer = () => {
 
   return (
     <QuizPresentation 
+      onResetToEmpty={resetToEmpty}
       pageDesigns={pageDesigns}
       onUpdateQuiz={updateQuiz}
       onAddQuiz={addQuiz}

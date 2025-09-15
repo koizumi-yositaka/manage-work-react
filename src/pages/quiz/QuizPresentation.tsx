@@ -1,10 +1,16 @@
 import { useState } from "react";
 import type { TPageDesign, TInputComponentDesign } from "@/types/quizType";
-import { QuizEdit } from "./QuizEdit";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/auth";
+import { quizApi } from "@/api/quizApi";
+import { useLoading } from "@/contexts/LoadingContext";
+import { showErrorDialog, showInfoDialog } from "@/utils/myConfirm";
+import { PresentationHeader } from "./components/PresentationHeader";
+import { RegisterRow } from "./components/RegisterRow";
+import { PageCard } from "./components/PageCard";
+import { quizGeneratorApi } from "@/api/quizGeneratorApi";
 
 interface ValidationError {
   type: 'quiz_id_duplicate' | 'empty_options' | 'empty_page' | 'empty_field_name';
@@ -27,6 +33,7 @@ interface QuizPresentationProps {
   onAddPage: (newPage: TPageDesign) => void;
   onDeletePage: (pageId: string) => void;
   onUpdatePageId: (oldPageId: string, newPageId: string) => void;
+  onResetToEmpty: () => void;
   onResetToMinimal: () => void;
   onResetToTemplate: () => void;
   onMoveQuizUp: (pageId: string, componentId: string) => void;
@@ -42,6 +49,7 @@ const QuizPresentation = ({
   onAddPage, 
   onDeletePage, 
   onUpdatePageId,
+  onResetToEmpty,
   onResetToMinimal,
   onResetToTemplate,
   onMoveQuizUp, 
@@ -54,13 +62,16 @@ const QuizPresentation = ({
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [tempPageId, setTempPageId] = useState<string>("");
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { show, hide } = useLoading();
+  const [quizName, setQuizName] = useState<string>("");
 
   const handleCopyJson = () => {
     const jsonString = JSON.stringify(pageDesigns, null, 2);
-    navigator.clipboard.writeText(jsonString).then(() => {
-      alert('JSONをクリップボードにコピーしました');
-    }).catch(() => {
-      alert('コピーに失敗しました');
+    navigator.clipboard.writeText(jsonString).then(async () => {
+      await showInfoDialog('JSONをクリップボードにコピーしました');
+    }).catch(async () => {
+      await showErrorDialog('コピーに失敗しました');
     });
   };
 
@@ -87,73 +98,100 @@ const QuizPresentation = ({
     setValidationResult(result);
     setIsValidationDialogOpen(true);
   };
+
+  const handleUploadFile = async (file: File) => {
+    try {
+      show('アップロード中です...');
+      const response = await quizApi.uploadQuizSource(file);
+      hide();
+      show(`アップロードに成功しました。クイズを作成中です...`);
+      const quizDesigns = await quizGeneratorApi.generateQuiz(response.key,3);
+      onResetToEmpty();
+      quizDesigns.forEach((quizDesign) => {
+        onAddPage(quizDesign);
+      });
+      hide();
+      await showInfoDialog('クイズを作成しました。');
+    } catch (e) {
+      hide();
+      await showErrorDialog('アップロードに失敗しました');
+    } 
+  };
+
+  const handleRegister = async () => {
+    if (!user) {
+      await showErrorDialog('ログイン情報を確認できません。再度ログインしてください。');
+      return;
+    }
+    if (!quizName.trim()) {
+      await showErrorDialog('クイズ名を入力してください');
+      return;
+    }
+    const result = onValidate();
+    if (!result.isValid) {
+      setValidationResult(result);
+      setIsValidationDialogOpen(true);
+      await showErrorDialog('バリデーションエラーを解消してください');
+      return;
+    }
+    try {
+      show('登録中です...');
+      await quizApi.createQuiz(user.id, quizName.trim(), pageDesigns);
+      hide();
+      await showInfoDialog('クイズを登録しました');
+      navigate({ to: "/quiz" });
+    } catch (e) {
+      hide();
+      await showErrorDialog('登録に失敗しました。時間をおいて再度お試しください。');
+    }
+  };
   return (
     <div className="space-y-8 p-6">
-      {/* ヘッダー部分 */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">クイズ管理</h1>
-            <p className="text-gray-600">クイズの作成・編集・管理を行います</p>
-          </div>
-          <Button 
-            onClick={() => navigate({ to: "/quiz" })}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            一覧に戻る
+      <PresentationHeader />
+
+      {/* ボタン一覧：左 リセット/テンプレート、右 バリデーション/JSON表示 */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <Button onClick={onResetToEmpty} variant="outline" className="bg-gray-50 border-gray-300 text-gray-800 hover:bg-gray-100">
+            すべて削除
+          </Button>
+          <Button onClick={onResetToMinimal} variant="outline" className="bg-red-50 border-red-300 text-red-800 hover:bg-red-100">
+            質問をリセット
+          </Button>
+          <Button onClick={onResetToTemplate} variant="outline" className="bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100">
+            テンプレートを使用
           </Button>
         </div>
-      </div>
-
-      {/* ボタン一覧 */}
-      <div className="flex flex-wrap gap-2">
-        <Button onClick={onResetToMinimal} variant="outline" className="bg-red-50 border-red-300 text-red-800 hover:bg-red-100">
-          リセット
-        </Button>
-        <Button onClick={onResetToTemplate} variant="outline" className="bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100">
-          テンプレート
-        </Button>
-        <Button onClick={() => {
-          const newPageId = `page_${Date.now()}`;
-          onAddPage({
-            pageId: newPageId,
-            components: []
-          });
-        }}>
-          ページを追加
-        </Button>
-        <Button onClick={handleValidate} variant="outline" className="bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100">
-          バリデーション
-        </Button>
-        <Dialog open={isJsonDialogOpen} onOpenChange={setIsJsonDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              JSON表示
-            </Button>
-          </DialogTrigger>
-          <DialogContent 
-            className="w-[95vw] max-w-none max-h-[80vh] overflow-auto"
-            style={{ width: '95vw', maxWidth: 'none' }}
-          >
-            <DialogHeader>
-              <DialogTitle>現在のページデータ（JSON）</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex justify-end">
-                <Button onClick={handleCopyJson} size="sm" variant="outline">
-                  コピー
-                </Button>
+        <div className="flex flex-wrap gap-2 items-center">
+          <Button onClick={handleValidate} variant="outline" className="bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100">
+            バリデーション
+          </Button>
+          <Dialog open={isJsonDialogOpen} onOpenChange={setIsJsonDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                JSON表示
+              </Button>
+            </DialogTrigger>
+            <DialogContent 
+              className="w-[95vw] max-w-none max-h-[80vh] overflow-auto"
+              style={{ width: '95vw', maxWidth: 'none' }}
+            >
+              <DialogHeader>
+                <DialogTitle>現在のページデータ（JSON）</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <Button onClick={handleCopyJson} size="sm" variant="outline">
+                    コピー
+                  </Button>
+                </div>
+                <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
+                  {JSON.stringify(pageDesigns, null, 2)}
+                </pre>
               </div>
-              <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
-                {JSON.stringify(pageDesigns, null, 2)}
-              </pre>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
             <DialogHeader>
@@ -199,111 +237,41 @@ const QuizPresentation = ({
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* 登録行 */}
+      <RegisterRow
+        quizName={quizName}
+        onChangeQuizName={setQuizName}
+        onRegister={handleRegister}
+        disabled={!user}
+        onAddPage={() => {
+          const newPageId = `page_${Date.now()}`;
+          onAddPage({
+            pageId: newPageId,
+            components: []
+          });
+        }}
+        onUploadFile={handleUploadFile}
+      />
       
       {pageDesigns.map((pageDesign, pageIndex) => (
-        <div key={pageDesign.pageId} className="border-2 border-gray-200 rounded-lg p-6 bg-white shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              ページ {pageIndex + 1}
-            </h2>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                {editingPageId === pageDesign.pageId ? (
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      value={tempPageId}
-                      onChange={(e) => setTempPageId(e.target.value)}
-                      className="text-sm font-mono"
-                      placeholder="ページID"
-                    />
-                    <Button 
-                      onClick={handleSavePageId}
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      保存
-                    </Button>
-                    <Button 
-                      onClick={handleCancelEditPageId}
-                      size="sm"
-                      variant="outline"
-                    >
-                      キャンセル
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                      ID: {pageDesign.pageId}
-                    </span>
-                    <Button 
-                      onClick={() => handleStartEditPageId(pageDesign.pageId)}
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      編集
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <div className="flex space-x-2">
-                <Button 
-                  onClick={() => {
-                    onAddQuiz(pageDesign.pageId, {
-                      id: "", // 自動生成されるため空文字
-                      type: "radio",
-                      answer: "",
-                      content: {
-                        q: "新しい質問",
-                        qIndex: 1, // 自動で計算されるため一時的な値
-                        name: `field_${Date.now()}`, // フィールド名は一時的な値
-                        options: [
-                          { label: "選択肢1", value: "option1" },
-                          { label: "選択肢2", value: "option2" },
-                        ],
-                        requiredMessage: "選択してください",
-                      },
-                    });
-                  }}
-                  size="sm"
-                  variant="outline"
-                >
-                  質問を追加
-                </Button>
-                <Button 
-                  onClick={() => onDeletePage(pageDesign.pageId)}
-                  size="sm"
-                  variant="outline"
-                  className="text-red-600 border-red-300 hover:bg-red-50"
-                >
-                  ページを削除
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-4">
-            {pageDesign.components.map((component, index) => (
-              <div key={component.id} className="border border-gray-100 rounded-md p-4 bg-gray-50">
-                <QuizEdit 
-                  quiz={component} 
-                  pageId={pageDesign.pageId}
-                  onUpdateQuiz={onUpdateQuiz}
-                  onDeleteQuiz={onDeleteQuiz}
-                  onMoveQuizUp={onMoveQuizUp}
-                  onMoveQuizDown={onMoveQuizDown}
-                  isFirst={index === 0}
-                  isLast={index === pageDesign.components.length - 1}
-                />
-              </div>
-            ))}
-            {pageDesign.components.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                このページには質問がありません。質問を追加してください。
-              </div>
-            )}
-          </div>
-        </div>
+        <PageCard
+          key={pageDesign.pageId}
+          pageDesign={pageDesign}
+          pageIndex={pageIndex}
+          onUpdateQuiz={onUpdateQuiz}
+          onAddQuiz={onAddQuiz}
+          onDeleteQuiz={onDeleteQuiz}
+          onDeletePage={onDeletePage}
+          onMoveQuizUp={onMoveQuizUp}
+          onMoveQuizDown={onMoveQuizDown}
+          onStartEditPageId={handleStartEditPageId}
+          isEditing={editingPageId === pageDesign.pageId}
+          tempPageId={tempPageId}
+          setTempPageId={setTempPageId}
+          onSavePageId={handleSavePageId}
+          onCancelEditPageId={handleCancelEditPageId}
+        />
       ))}
     </div>
   );

@@ -108,6 +108,7 @@ export const QuizCreator = () => {
     addPage,
     deletePage,
     updatePageId,
+    resetToEmpty,
     resetToMinimal,
     resetToTemplate,
     moveQuizUp,
@@ -130,6 +131,7 @@ export const QuizCreator = () => {
         onAddPage={addPage}
         onDeletePage={deletePage}
         onUpdatePageId={updatePageId}
+        onResetToEmpty={resetToEmpty}
         onResetToMinimal={resetToMinimal}
         onResetToTemplate={resetToTemplate}
         onMoveQuizUp={moveQuizUp}

@@ -22,6 +22,7 @@ interface UseQuizManagementReturn {
   addPage: (newPage: TPageDesign) => void;
   deletePage: (pageId: string) => void;
   updatePageId: (oldPageId: string, newPageId: string) => void;
+  resetToEmpty: () => void;
   resetToMinimal: () => void;
   resetToTemplate: () => void;
   moveQuizUp: (pageId: string, componentId: string) => void;
@@ -112,6 +113,10 @@ export const useQuizManagement = (initialData: TPageDesign[]): UseQuizManagement
           : page
       )
     );
+  }, []);
+
+  const resetToEmpty = useCallback(() => {
+    setPageDesigns([]);
   }, []);
 
   const resetToMinimal = useCallback(() => {
@@ -281,6 +286,7 @@ export const useQuizManagement = (initialData: TPageDesign[]): UseQuizManagement
     addPage,
     deletePage,
     updatePageId,
+    resetToEmpty,
     resetToMinimal,
     resetToTemplate,
     moveQuizUp,

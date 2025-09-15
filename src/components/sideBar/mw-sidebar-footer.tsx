@@ -23,31 +23,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { AuthState } from "@/auth";
 import { useNavigate } from "@tanstack/react-router";
+import { confirm } from "@/utils/myConfirm";
+
 
 export const MwSidebarFooter = ({ auth }: { auth: AuthState }) => {
-  //   const { openConfirmModal } = useConfirmModal();
-  //   const confirmModal: TConfirmModal = {
-  //     isOpen: true,
-  //     title: "test",
-  //     description: "test",
-  //     execLabel: "test",
-  //     cancelLabel: "test",
-  //     execHandler: async () => {
-  //       console.log("logout");
-  //       await logout();
-  //       console.log("logout2");
-  //       navigate({ to: "/login" });
-  //     },
-  //     cancelHandler: () => {
-  //       console.log("test");
-  //     },
-  //   };
-  //   const navigate = useNavigate();
   const navigate = useNavigate();
   const handleLogout = async () => {
-    //
-    console.log("logout");
+    const result = await confirm("Are you sure you want to logout?");
+    if (!result) return;
     auth.logout();
+    console.log("logout");
     navigate({ to: "/login" });
   };
   return (

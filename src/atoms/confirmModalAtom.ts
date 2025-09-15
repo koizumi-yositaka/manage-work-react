@@ -5,5 +5,6 @@ export const confirmModalAtom = atom<TConfirmModal>({
   title: "",
   isOpen: false,
   description: "",
+  type: "confirm",
   resolve: () => {},
 });
