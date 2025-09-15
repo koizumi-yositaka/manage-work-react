@@ -39,7 +39,8 @@ jobs:
             echo "S3_BUCKET=distribute-bucket-ky-cloudfront-bucket-manage-work-react-dev" >> $GITHUB_ENV
             echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID_DEV" >> $GITHUB_ENV
           fi
-
+      - name: output stage
+        run: echo "STAGE=$STAGE"
       - name: Build React app
         run: |
           if [[ "$STAGE" == "prod" ]]; then
