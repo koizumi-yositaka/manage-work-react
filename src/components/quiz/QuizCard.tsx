@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { quizApi } from "@/api/quizApi";
+import { sendEmail } from "@/api/authApi";
 
 interface QuizCardProps {
   quiz: {
@@ -36,7 +37,7 @@ export const QuizCard = ({ quiz, onShowDetails }: QuizCardProps) => {
     // TODO: 配信ロジックを実装 ここでAPI呼び出し
     setIsSending(true);
     await quizApi.distributeQuiz(accessToken ?? "", quiz.quizId, emailList.split(","));
-    await quizApi.sendEmail(accessToken ?? "", quiz.quizId, emailList.split(",") ?? []);
+    await sendEmail(accessToken ?? "", quiz.quizId, emailList.split(",") ?? []);
     handleCancelDistribute();
     setIsSending(false);
   };

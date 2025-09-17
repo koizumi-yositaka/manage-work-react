@@ -63,18 +63,5 @@ export const quizApi = {
             },
         });
         return response.data;
-    },
-    sendEmail: async (accessToken: string, quizId: string, toAddresses: string[]) => {
-        const sendEmailRequest = {
-            toAddresses,
-            subject:"QuizのURLが配布されました",
-            bodyHtml: `QuizのURLが配布されました。<a href='https://quiz-distributor.dev.yositaka-test.com/login?preQuizId=${quizId}'>QuizのURL</a>`
-        }
-        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/sendEmail`, sendEmailRequest, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        return response.data;
     }
 };
