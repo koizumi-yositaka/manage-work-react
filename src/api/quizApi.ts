@@ -57,7 +57,7 @@ export const quizApi = {
         return response.data;
     },
     distributeQuiz: async (accessToken: string, quizId: string, emailList: string[]) => {
-        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/distributeQuiz`, { quizId, targets: emailList }, {
+        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/distribute`, { quizId, targets: emailList }, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
