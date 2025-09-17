@@ -137,7 +137,7 @@ const QuizPresentation = ({
     }
     try {
       show('登録中です...');
-      await quizApi.createQuiz(user.id, quizName.trim(), pageDesigns);
+      await quizApi.createQuiz(user.id, quizName.trim(), pageDesigns, accessToken ?? "");
       hide();
       await showInfoDialog('クイズを登録しました');
       navigate({ to: "/quiz" });

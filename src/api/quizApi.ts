@@ -32,8 +32,12 @@ type UploadQuizSourceResponse = {
 
 
 export const quizApi = {
-    createQuiz: async (userId: string, quizName: string, pageDesign: TPageDesign[]) => {
-        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/createQuiz`, { userId, quizName, pageDesign });
+    createQuiz: async (userId: string, quizName: string, pageDesign: TPageDesign[], accessToken: string) => {
+        const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/createQuiz`, { userId, quizName, pageDesign }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
         return response.data;
     },
     uploadQuizSource: async (file: File | Blob, accessToken: string) => {
