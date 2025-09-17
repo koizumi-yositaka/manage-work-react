@@ -22,21 +22,21 @@ export default function ConfirmDialog() {
       case "error":
         return {
           iconColor: "text-red-600",
-          accentBg: "bg-red-50",
+          accentBg: "",
           titleColor: "text-red-700",
           confirmVariant: "destructive" as const,
         };
       case "info":
         return {
           iconColor: "text-blue-600",
-          accentBg: "bg-blue-50",
+          accentBg: "",
           titleColor: "text-blue-700",
           confirmVariant: "default" as const,
         };
       default:
         return {
           iconColor: "text-yellow-600",
-          accentBg: "bg-yellow-50",
+          accentBg: "",
           titleColor: "text-yellow-700",
           confirmVariant: "default" as const,
         };

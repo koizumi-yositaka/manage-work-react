@@ -13,10 +13,10 @@ function UnauthorizedPage() {
   const { auth } = Route.useRouteContext();
 
   const reasonMessages = {
-    insufficient_role: "You do not have the required role to access this page.",
+    insufficient_role: "このページにアクセスするために必要なロールがありません。",
     insufficient_permissions:
-      "You do not have the required permissions to access this page.",
-    default: "You are not authorized to access this page.",
+      "このページにアクセスするために必要な権限がありません。",
+    default: "このページへアクセスする権限がありません。",
   };
 
   const message =
@@ -25,7 +25,7 @@ function UnauthorizedPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8 text-center">
+      <div className="max-w-lg w-full bg-white shadow-lg rounded-lg p-8 text-center">
         <div className="mb-6">
           <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
             <svg
@@ -44,16 +44,16 @@ function UnauthorizedPage() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">アクセスが拒否されました</h1>
         <p className="text-gray-600 mb-6">{message}</p>
 
         <div className="mb-6 text-sm text-gray-500">
           <p>
-            <strong>Your roles:</strong> {auth.user?.roles.join(", ") || "None"}
+            <strong>あなたのロール:</strong> {auth.user?.roles.join(", ") || "なし"}
           </p>
           <p>
-            <strong>Your permissions:</strong>{" "}
-            {auth.user?.permissions.join(", ") || "None"}
+            <strong>あなたの権限:</strong>{" "}
+            {auth.user?.permissions.join(", ") || "なし"}
           </p>
         </div>
 
@@ -62,14 +62,14 @@ function UnauthorizedPage() {
             to="/dashboard"
             className="block w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
           >
-            Go to Dashboard
+            ダッシュボードへ戻る
           </Link>
 
           <Link
             to={redirect}
             className="block w-full bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300 transition-colors"
           >
-            Try Again
+            再試行
           </Link>
         </div>
       </div>

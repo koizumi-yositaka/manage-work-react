@@ -47,7 +47,7 @@ export const MwSidebarFooter = ({ auth }: { auth: AuthState }) => {
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src="/icons/fox.png" alt="John Doe" />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{ auth?.user?.email.charAt(0) }</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
@@ -76,10 +76,10 @@ export const MwSidebarFooter = ({ auth }: { auth: AuthState }) => {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {"sample@sample.com"}
+                      { auth?.user?.email }
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {"Guest"}
+                      { auth?.user?.roles.join(", ") }
                     </span>
                   </div>
                 </div>

@@ -5,5 +5,5 @@ export const Route = createFileRoute("/_authenticated/_moderator/moderator")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/_authenticated/_moderator/moderator"!</div>;
+  return <div>モデレータページ</div>;
 }

@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/_users")({
   beforeLoad: ({ context, location }) => {
-    const requiredPermissions = ["users:read", "users:write"];
+    const requiredPermissions = ["read", "write", "*"];
     if (!context.auth.hasAnyPermission(requiredPermissions)) {
       throw redirect({
         to: "/unauthorized",

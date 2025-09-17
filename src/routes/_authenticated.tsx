@@ -42,7 +42,9 @@ function AuthenticatedLayout() {
           <Separator orientation="vertical" className="mr-2 h-4" />
         </header>
         <main>
-          <Outlet />
+          <div className="p-4">
+            <Outlet />
+          </div> 
         </main>
       </SidebarInset>
     </SidebarProvider>

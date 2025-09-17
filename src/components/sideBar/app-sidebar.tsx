@@ -11,8 +11,8 @@ export function AppSidebar({
   console.log(props.auth);
   return (
     <Sidebar {...props} collapsible="offcanvas">
-      <MwSidebarHeader />
-      <MwSidebarContent />
+      <MwSidebarHeader auth={props.auth} />
+      <MwSidebarContent auth={props.auth}/>
       <MwSidebarFooter auth={props.auth} />
     </Sidebar>
   );
