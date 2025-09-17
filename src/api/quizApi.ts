@@ -36,11 +36,11 @@ export const quizApi = {
         const response: AxiosResponse<QuizResponse> = await axiosInstance.post(`/createQuiz`, { userId, quizName, pageDesign });
         return response.data;
     },
-    uploadQuizSource: async (file: File | Blob) => {
+    uploadQuizSource: async (file: File | Blob, accessToken: string) => {
         const formData = new FormData();
         formData.append('file', file);
         const response: AxiosResponse<UploadQuizSourceResponse> = await axiosInstance.post(`/uploadQuizSrc`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': 'multipart/form-data' , Authorization: `Bearer ${accessToken}`},
         });
         return response.data;
     },

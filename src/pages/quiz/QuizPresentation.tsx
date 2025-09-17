@@ -65,6 +65,7 @@ const QuizPresentation = ({
   const { user } = useAuth();
   const { show, hide } = useLoading();
   const [quizName, setQuizName] = useState<string>("");
+  const accessToken = localStorage.getItem('auth-token');
 
   const handleCopyJson = () => {
     const jsonString = JSON.stringify(pageDesigns, null, 2);
@@ -102,7 +103,7 @@ const QuizPresentation = ({
   const handleUploadFile = async (file: File) => {
     try {
       show('アップロード中です...');
-      const response = await quizApi.uploadQuizSource(file);
+      const response = await quizApi.uploadQuizSource(file, accessToken ?? "");
       hide();
       show(`アップロードに成功しました。クイズを作成中です...`);
       const quizDesigns = await quizGeneratorApi.generateQuiz(response.key,3);
