@@ -28,7 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       getUserInfo(token)
         .then((userData) => {
           if (userData) {
-            console.log("userData", userData);
             setUser(userAttributesToUserInfo(userData.user));
             setIsAuthenticated(true);
           } else {

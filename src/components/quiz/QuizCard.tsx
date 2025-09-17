@@ -35,8 +35,6 @@ export const QuizCard = ({ quiz, onShowDetails }: QuizCardProps) => {
   const handleSendDistribution = async () => {
     // TODO: 配信ロジックを実装 ここでAPI呼び出し
     setIsSending(true);
-    console.log("配信先メール:", emailList);
-    console.log("クイズID:", quiz.quizId);
     await quizApi.distributeQuiz(accessToken ?? "", quiz.quizId, emailList.split(","));
     handleCancelDistribute();
     setIsSending(false);

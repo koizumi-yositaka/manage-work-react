@@ -37,7 +37,6 @@ export interface UserInfoResponse {
 
 //mwGetUser
 export const getUserInfo = async (accessToken: string ) => {
-    console.log("accessToken", accessToken);
     const response = await axiosInstance.get<UserInfoResponse>("/getUser", {
         headers: {
             Authorization: `Bearer ${accessToken}`,

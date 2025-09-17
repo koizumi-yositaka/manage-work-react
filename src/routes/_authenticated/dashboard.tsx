@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { confirm } from "@/utils/myConfirm";
 import { Button } from "@/components/ui/button";
 
@@ -35,6 +35,23 @@ function DashboardComponent() {
         <p className="text-gray-600">
           ようこそ, <strong>{auth.user?.email}</strong>
         </p>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-2">権限ごとのリンク確認</h2>
+        <ul className="text-gray-600 list-disc list-inside space-y-2">
+          <li>
+            <Link to="/manage">ユーザ管理</Link>
+          </li>
+          <li>
+            <Link to="/moderator">モデレータ管理</Link>
+          </li>
+          <li>
+            <Link to="/admin">管理者管理</Link>
+          </li>
+          <li>
+            <Link to="/quiz">クイズ管理</Link>
+          </li>
+        </ul>
       </div>
     </div>
   );

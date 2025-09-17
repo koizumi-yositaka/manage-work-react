@@ -7,7 +7,6 @@ export const userAttributesToUserInfo = (attributes: UserAttribute  ): User => {
     const email = attributes.email;
     const roles = attributes.roles.split(",") ?? [];
     const permissions = attributes.permissions.split(",") ?? [];
-    console.log(roles,permissions);
     return {
         id: id ?? "",
         username: username ?? email ?? "",

@@ -10,7 +10,6 @@ import ConfirmDialog from "./components/common/ConfirmModal";
 
 function InnerApp() {
   const auth = useAuth();
-  console.log(auth);
   return <RouterProvider router={router} context={{ auth }} />;
 }
 

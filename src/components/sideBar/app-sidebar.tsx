@@ -8,7 +8,6 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & {
   auth: AuthState;
 }) {
-  console.log(props.auth);
   return (
     <Sidebar {...props} collapsible="offcanvas">
       <MwSidebarHeader auth={props.auth} />

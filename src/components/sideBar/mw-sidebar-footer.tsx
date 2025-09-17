@@ -32,7 +32,6 @@ export const MwSidebarFooter = ({ auth }: { auth: AuthState }) => {
     const result = await confirm("Are you sure you want to logout?");
     if (!result) return;
     auth.logout();
-    console.log("logout");
     navigate({ to: "/login" });
   };
   return (
