@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/_users/manage")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: () => {
     // Additional permission check at the page level
     // if (!context.auth.hasPermission("read")) {
     //   throw new Error("You need write permissions to manage users");
