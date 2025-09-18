@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { quizApi } from "@/api/quizApi";
 import { sendEmail } from "@/api/authApi";
+import { showErrorDialog } from "@/utils/myConfirm";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useLoading } from "@/contexts/LoadingContext";
 
 interface QuizCardProps {
   quiz: {
@@ -20,26 +31,34 @@ interface QuizCardProps {
 export const QuizCard = ({ quiz, onShowDetails }: QuizCardProps) => {
   const [isDistributing, setIsDistributing] = useState(false);
   const [emailList, setEmailList] = useState("");
-  const [isSending, setIsSending] = useState(false);
   const accessToken = localStorage.getItem('auth-token');
-
+  const { show, hide } = useLoading();
   const handleDistribute = () => {
     setIsDistributing(true);
   };
 
   const handleCancelDistribute = () => {
     setIsDistributing(false);
-    
     setEmailList("");
   };
 
   const handleSendDistribution = async () => {
-    // TODO: 配信ロジックを実装 ここでAPI呼び出し
-    setIsSending(true);
-    await quizApi.distributeQuiz(accessToken ?? "", quiz.quizId, emailList.split(","));
-    await sendEmail(accessToken ?? "", quiz.quizId, emailList.split(",") ?? []);
-    handleCancelDistribute();
-    setIsSending(false);
+    show('配信中です...');
+    const recipients = emailList
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    try {
+      await quizApi.distributeQuiz(accessToken ?? "", quiz.quizId, recipients);
+      await sendEmail(accessToken ?? "", quiz.quizId, recipients);
+      setIsDistributing(false);
+      setEmailList("");
+      hide();
+    } catch (e) {
+      hide();
+      setIsDistributing(false);
+      await showErrorDialog('配信に失敗しました');
+    } 
   };
 
   return (
@@ -65,52 +84,55 @@ export const QuizCard = ({ quiz, onShowDetails }: QuizCardProps) => {
       </div>
       
       <div className="mt-4 pt-4 border-t border-gray-200">
-        {!isDistributing ? (
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => onShowDetails(quiz)}
-              className="flex-1 bg-blue-600 text-white text-sm py-2 px-3 rounded hover:bg-blue-700 transition-colors"
-            >
-              詳細を見る
-            </button>
-            <button 
-              onClick={handleDistribute}
-              className="flex-1 bg-green-600 text-white text-sm py-2 px-3 rounded hover:bg-green-700 transition-colors"
-            >
-              配信
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                配信先メールアドレス（カンマ区切り）
-              </label>
-              <textarea
-                value={emailList}
-                onChange={(e) => setEmailList(e.target.value)}
-                placeholder="example1@email.com, example2@email.com, example3@email.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                rows={3}
-              />
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={handleSendDistribution}
-                className="flex-1 bg-green-600 text-white text-sm py-2 px-3 rounded hover:bg-green-700 transition-colors"
-              >
-                {isSending ? "送信中..." : "送信"}
-              </button>
-              <button 
-                onClick={handleCancelDistribute}
-                className="flex-1 bg-gray-500 text-white text-sm py-2 px-3 rounded hover:bg-gray-600 transition-colors" disabled={isSending}
-              >
-                キャンセル
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="flex space-x-2">
+          <button 
+            onClick={() => onShowDetails(quiz)}
+            className="flex-1 bg-blue-600 text-white text-sm py-2 px-3 rounded hover:bg-blue-700 transition-colors"
+          >
+            詳細を見る
+          </button>
+          <button 
+            onClick={handleDistribute}
+            className="flex-1 bg-green-600 text-white text-sm py-2 px-3 rounded hover:bg-green-700 transition-colors"
+          >
+            配信
+          </button>
+        </div>
       </div>
+
+      <Dialog open={isDistributing} onOpenChange={setIsDistributing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>クイズ配信</DialogTitle>
+            <DialogDescription>
+              配信先メールアドレスをカンマ区切りで入力してください。
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              配信先メールアドレス（カンマ区切り）
+            </label>
+            <textarea
+              value={emailList}
+              onChange={(e) => setEmailList(e.target.value)}
+              placeholder="example1@email.com, example2@email.com, example3@email.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCancelDistribute}
+            >
+              キャンセル
+            </Button>
+            <Button onClick={handleSendDistribution} disabled={emailList.trim().length === 0}>
+              送信
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
